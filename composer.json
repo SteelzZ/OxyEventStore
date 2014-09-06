@@ -1,0 +1,24 @@
+{
+    "name": "steelzz/oxy-event-store",
+    "description": "Library that makes it easier to implement event sourcing",
+    "authors": [
+        {
+            "name": "Tomas Bartkus",
+            "email": "to.bartkus@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-0" : {
+            "Oxy\\EventStore" : "src"
+        }
+    },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/steelzz/OxyCore"
+        }
+    ],
+    "require": {
+        "steelzz/oxy-core": "dev-master"
+    }
+}
