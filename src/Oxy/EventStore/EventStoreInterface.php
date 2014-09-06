@@ -40,4 +40,20 @@ interface EventStoreInterface
      * @return void
      */
     public function add(EventProviderInterface $eventProvider);
+
+    /**
+     * Commit all events
+     *
+     * @throws Storage\ConcurrencyException
+     *
+     * @return void
+     */
+    public function commit();
+
+    /**
+     * Rollback everything
+     *
+     * @return void
+     */
+    public function rollback();
 }
