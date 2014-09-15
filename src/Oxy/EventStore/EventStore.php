@@ -7,7 +7,6 @@
 
 namespace Oxy\EventStore;
 
-use Oxy\Core\Guid;
 use Oxy\EventStore\EventProvider\EventProviderInterface;
 use Oxy\EventStore\Storage\ConcurrencyException;
 use Oxy\EventStore\Storage\ConflictSolverInterface;
@@ -58,14 +57,14 @@ class EventStore implements EventStoreInterface
     /**
      * Load event provider
      *
-     * @param Guid                   $eventProviderGuid
+     * @param String                 $eventProviderId
      * @param EventProviderInterface $eventProvider
      *
      * @return EventProviderInterface
      */
-    public function getById(Guid $eventProviderGuid, EventProviderInterface $eventProvider)
+    public function getById($eventProviderId, EventProviderInterface $eventProvider)
     {
-        $this->_loadSnapShotIfExists($eventProviderGuid, $eventProvider);
+        $this->_loadSnapShotIfExists($eventProviderId, $eventProvider);
         $this->_loadRemainingHistoryEvents($eventProvider);
         $eventProvider->updateVersion($this->_domainEventStorage->getVersion());
         
@@ -78,7 +77,7 @@ class EventStore implements EventStoreInterface
      */
     public function add(EventProviderInterface $eventProvider)
     {
-        $this->_eventProviders[(string)$eventProvider->getGuid()] = $eventProvider;
+        $this->_eventProviders[(string)$eventProvider->getId()] = $eventProvider;
     }
 
     /**
@@ -90,15 +89,15 @@ class EventStore implements EventStoreInterface
      */
     public function commit()
     {
-        foreach ($this->_eventProviders as $eventProviderGuid => $eventProvider){
+        foreach ($this->_eventProviders as $eventProviderId => $eventProvider){
             
             // Check if there is concurrency problem
             // if so use injected strategy to solve it and save correct event provider
-            if((int)$eventProvider->getVersion() !== (int)$this->_domainEventStorage->getVersion($eventProviderGuid)){
+            if((int)$eventProvider->getVersion() !== (int)$this->_domainEventStorage->getVersion($eventProviderId)){
                 throw new ConcurrencyException('Concurrency!');
 
                 /*
-                 * Perhaps should enable some time ? :)
+                 * Perhaps should be enabled at some point ? :)
                  *
                 $className = get_class($eventProvider);
                 $fromStorage = new $className(new Oxy_Guid($eventProviderGuid));
@@ -121,7 +120,7 @@ class EventStore implements EventStoreInterface
 
             // Save event provider events
             $this->_domainEventStorage->save($eventProvider);
-            unset($this->_eventProviders[$eventProviderGuid]);
+            unset($this->_eventProviders[$eventProviderId]);
         }
     }
 
@@ -138,17 +137,17 @@ class EventStore implements EventStoreInterface
     /**
      * Load snapshot and return event provider
      *
-     * @param Guid $eventProviderGuid
+     * @param String                 $eventProviderId
      * @param EventProviderInterface $eventProvider
      *
      * @return EventProviderInterface
      */
     private function _loadSnapShotIfExists(
-        Guid $eventProviderGuid,
+        $eventProviderId,
         EventProviderInterface $eventProvider
     )
     {
-        $snapShot = $this->_domainEventStorage->getSnapShot($eventProviderGuid, $eventProvider);
+        $snapShot = $this->_domainEventStorage->getSnapShot($eventProviderId, $eventProvider);
         if (!($snapShot instanceof SnapShotInterface)) {
             return $eventProvider;
         }
@@ -167,7 +166,7 @@ class EventStore implements EventStoreInterface
      */
     private function _loadRemainingHistoryEvents(EventProviderInterface $eventProvider)
     {
-        $domainEvents = $this->_domainEventStorage->getEventsSinceLastSnapShot($eventProvider->getGuid());
+        $domainEvents = $this->_domainEventStorage->getEventsSinceLastSnapShot($eventProvider->getId());
         $eventProvider->loadEvents($domainEvents);
         return $eventProvider;
     }

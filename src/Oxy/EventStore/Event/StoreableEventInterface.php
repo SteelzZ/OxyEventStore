@@ -7,8 +7,6 @@
 
 namespace Oxy\EventStore\Event;
 
-use Oxy\Core\Guid;
-
 /**
  * @category Oxy
  * @package  Oxy\EventStore\Event
@@ -22,7 +20,7 @@ interface StoreableEventInterface
     public function getEvent();
     
     /**
-     * @return Guid
+     * @return String
      */
-    public function getProviderGuid();
+    public function getProviderId();
 }

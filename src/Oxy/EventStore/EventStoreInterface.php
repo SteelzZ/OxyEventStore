@@ -7,7 +7,6 @@
 
 namespace Oxy\EventStore;
 
-use Oxy\Core\Guid;
 use Oxy\EventStore\EventProvider\EventProviderInterface;
 
 /**
@@ -22,13 +21,13 @@ interface EventStoreInterface
     /**
      * Return event provider
      *
-     * @param Guid $eventProviderGuid
+     * @param String                 $eventProviderId
      * @param EventProviderInterface $eventProvider
      *
      * @return EventProviderInterface
      */
     public function getById(
-        Guid $eventProviderGuid,
+        $eventProviderId,
         EventProviderInterface $eventProvider
     );
 

@@ -7,7 +7,6 @@
 
 namespace Oxy\EventStore\Storage\SnapShotStorage;
 
-use Oxy\Core\Guid;
 use Oxy\EventStore\EventProvider\EventProviderInterface;
 use Oxy\EventStore\Storage\SnapShot\SnapShotInterface;
 
@@ -23,17 +22,18 @@ interface SnapShotStorageInterface
     /**
      * Get snapshot
      *
-     * @param Guid $eventProviderGuid
+     * @param String                 $eventProviderId
      * @param EventProviderInterface $eventProvider
      * 
      * @return SnapShotInterface
      */
-    public function getSnapShot(Guid $eventProviderGuid, EventProviderInterface $eventProvider);
+    public function getSnapShot($eventProviderId, EventProviderInterface $eventProvider);
 
     /**
      * Save snapshot
      *
      * @param EventProviderInterface $eventProvider
+     *
      * @return void
      */
     public function saveSnapShot(EventProviderInterface $eventProvider);

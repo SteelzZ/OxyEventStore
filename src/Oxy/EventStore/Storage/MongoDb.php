@@ -7,7 +7,6 @@
 
 namespace Oxy\EventStore\Storage;
 
-use Oxy\Core\Guid;
 use Oxy\EventStore\Event\ArrayableInterface;
 use Oxy\EventStore\Event\StoreableEvent;
 use Oxy\EventStore\Event\StoreableEventsCollection;
@@ -71,12 +70,12 @@ class MongoDb implements StorageInterface
     /**
      * Get snapshot
      *
-     * @param Guid $eventProviderGuid
+     * @param String                 $eventProviderId
      * @param EventProviderInterface $eventProvider
      * 
      * @return SnapShotInterface|null
      */
-    public function getSnapShot(Guid $eventProviderGuid, EventProviderInterface $eventProvider)
+    public function getSnapShot($eventProviderId, EventProviderInterface $eventProvider)
     {
         try{
             $collection = $this->_db->selectCollection('aggregates');
@@ -86,7 +85,7 @@ class MongoDb implements StorageInterface
             */
             $query = array(
                 "en" => (string)$eventProvider->getName(), // en - entityName
-                "rei" => (string)$eventProvider->getRealIdentifier(), // rei - realEntityIdentifier
+                "rei" => (string)$eventProvider->getId(), // rei - realEntityIdentifier
             );
             $cursor = $collection->findOne($query);
             if(is_null($cursor)) {
@@ -99,7 +98,7 @@ class MongoDb implements StorageInterface
             }
                     
             $snapshot = new SnapShot(
-                new Guid($cursor['_id']),
+                $cursor['_id'],
                 $cursor['v'], 
                 new $cursor['sc']((array)$cursor['ss'])
             );
@@ -122,17 +121,17 @@ class MongoDb implements StorageInterface
      * Return all events that are related
      * to $eventProviderId
      *
-     * @param Guid $eventProviderGuid
+     * @param String $eventProviderId
      *
      * @return StoreableEventsCollectionInterface
      */
-    public function getAllEvents(Guid $eventProviderGuid)
+    public function getAllEvents($eventProviderId)
     {
         try{
             $events = new StoreableEventsCollection();
             $collection = $this->_db->selectCollection('events');
             $query = array(
-                "ag" => (string)$eventProviderGuid
+                "ag" => (string)$eventProviderId
             );
                                         
             $cursorAtEvents = $collection->find($query);
@@ -144,7 +143,7 @@ class MongoDb implements StorageInterface
                         if(class_exists($eventData['ec'])){
                             $events->addEvent(
                                 new StoreableEvent(
-                                    new Guid($eventData['eg']),
+                                    $eventData['eg'],
                                     new $eventData['ec']($eventData['e'])
                                 )
                             );
@@ -153,7 +152,7 @@ class MongoDb implements StorageInterface
                         if(class_exists($eventData['ec'])){
                             $events->addEvent(
                                 new StoreableEvent(
-                                    new Guid($eventData['ag']),
+                                    $eventData['ag'],
                                     new $eventData['ec']($eventData['e'])
                                 )
                             );
@@ -179,11 +178,11 @@ class MongoDb implements StorageInterface
     /**
      * Get events count since last snapshot
      *
-     * @param Guid $eventProviderGuid
+     * @param String $eventProviderId
      *
      * @return integer
      */
-    public function getEventCountSinceLastSnapShot(Guid $eventProviderGuid)
+    public function getEventCountSinceLastSnapShot($eventProviderId)
     {
         return 0;        
     }
@@ -191,11 +190,11 @@ class MongoDb implements StorageInterface
     /**
      * Get events since last snap shot
      *
-     * @param Guid $eventProviderGuid
+     * @param String $eventProviderId
      *
      * @return StoreableEventsCollection
      */
-    public function getEventsSinceLastSnapShot(Guid $eventProviderGuid)
+    public function getEventsSinceLastSnapShot($eventProviderId)
     {
         //return $this->getAllEvents($eventProviderGuid);
         return new StoreableEventsCollection();
@@ -221,7 +220,7 @@ class MongoDb implements StorageInterface
             $collection = $this->_db->selectCollection('aggregates');
             $query = array(
                 "en" => (string)$eventProvider->getName(), // en - entityName
-                "rei" => (string)$eventProvider->getRealIdentifier(), // rei - realEntityIdentifier
+                "rei" => (string)$eventProvider->getId(), // rei - realEntityIdentifier
             );
             
             $cursor = $collection->findOne($query);            
@@ -236,15 +235,14 @@ class MongoDb implements StorageInterface
             if (
                 !$this->_isSame(
                     $cursor,
-                    $eventProvider->getGuid(),
-                    $eventProvider->getName(),
-                    $eventProvider->getRealIdentifier()
+                    $eventProvider->getId(),
+                    $eventProvider->getName()
                 )
             ) {
                 throw new EntityAlreadyExistsException(
                 	sprintf(
                 		'Entity with id [%s] and name [%s] already exists!',
-                	    $eventProvider->getRealIdentifier(),
+                	    $eventProvider->getId(),
                 	    $eventProvider->getName()
                     )
                 );
@@ -252,7 +250,7 @@ class MongoDb implements StorageInterface
             
             $result = $this->saveSnapShot($eventProvider); 
             if($result){
-                $result = $this->saveChanges($changes, $eventProvider->getGuid());
+                $result = $this->saveChanges($changes, $eventProvider->getId());
                 if(!$result){
                     throw new CouldNotSaveEventsException('Could not save events!');
                 }
@@ -266,12 +264,12 @@ class MongoDb implements StorageInterface
      * Save events to database
      *
      * @param \Oxy\EventStore\Event\StoreableEventsCollectionInterface $events
-     * @param Guid $guid
+     * @param String                                                   $id
      *
      * @internal param $StoreableEventsCollectionInterface
      * @return null
      */
-    private function saveChanges(StoreableEventsCollectionInterface $events, Guid $guid)
+    private function saveChanges(StoreableEventsCollectionInterface $events, $id)
     {
         try{
             $collection = $this->_db->selectCollection('events');
@@ -287,18 +285,18 @@ class MongoDb implements StorageInterface
                 }
                 $event = (object)$eventInstance->toArray();
                 
-                if((string)$storableEvent->getProviderGuid() === (string)$guid){
+                if((string)$storableEvent->getProviderId() === (string)$id){
                     $data = array(
                         'd' => date('Y-m-d H:i:s'),
-                        'ag' => (string)$guid,
+                        'ag' => (string)$id,
                         'e' => $event,
                         'ec' => (string)get_class($eventInstance)
                     );
                 } else {
                     $data = array(
                         'd' => date('Y-m-d H:i:s'),
-                        'ag' => (string)$guid,
-                        'eg' => (string)$storableEvent->getProviderGuid(),
+                        'ag' => (string)$id,
+                        'eg' => (string)$storableEvent->getProviderId(),
                         'e' => $event,
                         'ec' => (string)get_class($eventInstance)
                     );
@@ -334,11 +332,10 @@ class MongoDb implements StorageInterface
             //var_dump($memento);
             if(!is_null($memento)){
                 $aggregateCollection->update(
-                    array("_id" => (string)$eventProvider->getGuid()), 
+                    array("_id" => (string)$eventProvider->getId()),
                     array(
-                        '_id' => (string)$eventProvider->getGuid(),
+                        '_id' => (string)$eventProvider->getId(),
                         'en' => (string)$eventProvider->getName(),
-                        'rei' => (string)$eventProvider->getRealIdentifier(),
                         'ss' => (object)$memento->toArray(),
                         'sc' => (string)get_class($memento),
                         'v' => $this->_version + 1
@@ -398,14 +395,13 @@ class MongoDb implements StorageInterface
     /**
      * Check for concurency
      *
-     * @param mixed $cursor
-     * @param string $guid
+     * @param mixed  $cursor
+     * @param string $id
      * @param string $name
-     * @param string $realIdentifier
      *
      * @return boolean
      */
-    private function _isSame($cursor, $guid, $name, $realIdentifier)
+    private function _isSame($cursor, $id, $name)
     {
         try{
             if(is_null($cursor)) {
@@ -413,9 +409,8 @@ class MongoDb implements StorageInterface
             } 
             
             if (
-                ((string)$cursor['en'] === (string)$name) 
-                && ((string)$cursor['rei'] === $realIdentifier) 
-                && ((string)$cursor['_id'] === (string)$guid)
+                ((string)$cursor['en'] === (string)$name)
+                && ((string)$cursor['_id'] === (string)$id)
             ) {
                 return true;
             } else {

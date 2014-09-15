@@ -59,9 +59,9 @@ interface EventProviderInterface extends OriginatorInterface
     public function getName();
     
     /**
-     * Return real identifier
+     * Return id
      * 
      * @return string
      */
-    public function getRealIdentifier();
+    public function getId();
 }

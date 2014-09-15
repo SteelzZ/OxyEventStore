@@ -1,2 +1,2 @@
-OxyEventStore
-=============
+Oxy EventStore package
+======================

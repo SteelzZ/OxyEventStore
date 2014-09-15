@@ -7,7 +7,6 @@
 
 namespace Oxy\EventStore\Storage;
 
-use Oxy\Core\Guid;
 use Oxy\EventStore\Event\StoreableEventsCollectionInterface;
 use Oxy\EventStore\EventProvider\EventProviderInterface;
 use Oxy\EventStore\Storage\SnapShotStorage\SnapShotStorageInterface;
@@ -24,29 +23,29 @@ interface StorageInterface extends SnapShotStorageInterface
     /**
      * Get all events for event provider
      *
-     * @param Guid $eventProviderGuid
+     * @param String $eventProviderId
      *
      * @return StoreableEventsCollectionInterface
      */
-    public function getAllEvents(Guid $eventProviderGuid);
+    public function getAllEvents($eventProviderId);
 
     /**
      * Get all events since last snapshot
      *
-     * @param Guid $eventProviderGuid
+     * @param String $eventProviderId
      *
      * @return StoreableEventsCollectionInterface
      */
-    public function getEventsSinceLastSnapShot(Guid $eventProviderGuid);
+    public function getEventsSinceLastSnapShot($eventProviderId);
 
     /**
      * Get events count since last snapshot
      *
-     * @param Guid $eventProviderGuid
+     * @param String $eventProviderId
      *
      * @return integer
      */
-    public function getEventCountSinceLastSnapShot(Guid $eventProviderGuid);
+    public function getEventCountSinceLastSnapShot($eventProviderId);
 
     /**
      * Save event provider events

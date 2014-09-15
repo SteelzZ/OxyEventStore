@@ -7,7 +7,6 @@
 
 namespace Oxy\EventStore\Storage\SnapShot;
 
-use Oxy\Core\Guid;
 use Oxy\EventStore\Storage\Memento\MementoInterface;
 
 /**
@@ -27,11 +26,11 @@ interface SnapShotInterface
     public function getMemento();
 
     /**
-     * Return event provider GUID
+     * Return event provider id
      *
-     * @return Guid
+     * @return String
      */
-    public function getEventProviderGuid();
+    public function getEventProviderId();
 
     /**
      * Return version

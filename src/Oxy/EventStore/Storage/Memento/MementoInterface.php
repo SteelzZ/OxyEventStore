@@ -12,7 +12,7 @@ namespace Oxy\EventStore\Storage\Memento;
  *
  * @category Oxy
  * @package  Oxy\EventStore\Storage
- * @author Tomas Bartkus <to.bartkus@gmail.com>
+ * @author   Tomas Bartkus <to.bartkus@gmail.com>
  */
 interface MementoInterface
 {

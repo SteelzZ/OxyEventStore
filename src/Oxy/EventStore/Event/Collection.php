@@ -7,14 +7,14 @@
 
 namespace Oxy\EventStore\Event;
 
-use Oxy\Core\Collection;
+use Oxy\Core\Collection as OxyCoreCollection;
 
 /**
  * @category Oxy
  * @package  Oxy\EventStore\Event
  * @author Tomas Bartkus <to.bartkus@gmail.com>
  **/
-class Oxy_EventStore_Event_Collection extends Collection
+class Collection extends OxyCoreCollection
 {
     /**
      * @param array $collectionItems

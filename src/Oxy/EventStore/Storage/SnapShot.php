@@ -7,24 +7,23 @@
 
 namespace Oxy\EventStore\Storage;
 
-use Oxy\Core\Guid;
 use Oxy\EventStore\Storage\Memento\MementoInterface;
 use Oxy\EventStore\Storage\SnapShot\SnapShotInterface;
 
 /**
  * Snapshot
  *
- * @category Oxy
- * @package Oxy_EventStore
+ * @category   Oxy
+ * @package    Oxy_EventStore
  * @subpackage Storage
- * @author Tomas Bartkus <to.bartkus@gmail.com>
+ * @author     Tomas Bartkus <to.bartkus@gmail.com>
  */
 class SnapShot implements SnapShotInterface
 {
     /**
-     * @var Guid
+     * @var String
      */
-    private $_eventProviderGuid;
+    private $_eventProviderId;
 
     /**
      * @var Integer
@@ -39,11 +38,11 @@ class SnapShot implements SnapShotInterface
     private $_memento;
 
     /**
-     * @return Guid
+     * @return String
      */
-    public function getEventProviderGuid()
+    public function getEventProviderId()
     {
-        return $this->_eventProviderGuid;
+        return $this->_eventProviderId;
     }
 
     /**
@@ -69,15 +68,15 @@ class SnapShot implements SnapShotInterface
     /**
      * Initialize snapshot
      *
-     * @param Guid             $eventProviderGuid
+     * @param String           $eventProviderId
      * @param integer          $version
      * @param MementoInterface $memento
      *
      * @return SnapShot
      */
-    public function __construct(Guid $eventProviderGuid, $version, MementoInterface $memento)
+    public function __construct($eventProviderId, $version, MementoInterface $memento)
     {
-        $this->_eventProviderGuid = $eventProviderGuid;
+        $this->_eventProviderGuid = $eventProviderId;
         $this->_version = $version;
         $this->_memento = $memento;
     }

@@ -17,9 +17,9 @@ use Oxy\Core\Guid;
 class StoreableEvent implements StoreableEventInterface
 {
     /**
-     * @var Guid
+     * @var String
      */
-    private $_providerGuid;
+    private $_providerId;
 
     /**
      * @var EventInterface
@@ -29,18 +29,18 @@ class StoreableEvent implements StoreableEventInterface
     /**
      * Init
      *
-     * @param Guid $providerGuid
+     * @param String         $providerId
      * @param EventInterface $event
      *
      * @return StoreableEvent
      */
     public function __construct(
-        Guid $providerGuid,
+        $providerId,
         EventInterface $event
     )
     {
-        $this->_providerGuid = $providerGuid;
-        $this->_event = $event;
+        $this->_providerId = $providerId;
+        $this->_event      = $event;
     }
 
     /**
@@ -54,8 +54,8 @@ class StoreableEvent implements StoreableEventInterface
     /**
      * @return Guid
      */
-    public function getProviderGuid()
+    public function getProviderId()
     {
-        return $this->_providerGuid;
+        return $this->_providerId;
     }
 }

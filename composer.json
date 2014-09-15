@@ -1,6 +1,6 @@
 {
     "name": "steelzz/oxy-event-store",
-    "description": "Library that makes it easier to implement event sourcing",
+    "description": "PHP library for Event Sourcing",
     "authors": [
         {
             "name": "Tomas Bartkus",
@@ -8,7 +8,7 @@
         }
     ],
     "autoload": {
-        "psr-0" : {
+        "psr-4" : {
             "Oxy\\EventStore" : "src"
         }
     },
